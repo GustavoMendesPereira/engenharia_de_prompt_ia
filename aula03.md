@@ -24,3 +24,5 @@ Qual é a terceira letra da quinta palavra da frase ‘O rato roeu a roupa do Re
 
 Conclusão:
 Conforme analisamos no print 1 dependendo do tipo de arquivo ou da versão a IA pode ler os tokens de diferentes formas.
+Por exemplo, algumas IA podem ler meu nome somente como Gustavo ou como Gust, Avo.
+
