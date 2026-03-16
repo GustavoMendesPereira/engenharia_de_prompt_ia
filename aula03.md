@@ -20,3 +20,7 @@ Pergunta 3:
 Qual é a terceira letra da quinta palavra da frase ‘O rato roeu a roupa do Rei de Roma"
 <img width="633" height="375" alt="image" src="https://github.com/user-attachments/assets/4f75832a-5852-435e-baaa-abb594747424" />
 <img width="469" height="218" alt="image" src="https://github.com/user-attachments/assets/dd939a0e-bd8f-4f56-a51e-1380999c44cf" />
+
+
+Conclusão:
+Conforme analisamos no print 1 dependendo do tipo de arquivo ou da versão a IA pode ler os tokens de diferentes formas.
