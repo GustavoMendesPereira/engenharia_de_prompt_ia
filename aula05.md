@@ -3,4 +3,6 @@ No encontro as cegas, Theodore vai pro encontro e não informa seu estado emocio
 
 2 Como Samantha consegue interpretar instruções vagas, superando as limitações de uma IA tradicional?
 A Samantha supera as limitações de uma IA tradicional porque ela não é apenas um software. Ela é uma consciencia que evolui atraves da experiencia.
-Alem dela não esperar de um prompt para interagir, ela é autonoma
+Alem dela não esperar de um prompt para interagir, ela é autonoma e possui desejos proprios.
+
+
