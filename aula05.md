@@ -21,3 +21,5 @@ A capacidade da Samantha de preencher lacunas é antecipando os desejos de Theod
 ​Exemplo: Use um estilo similar a: "Lembro-me do cheiro do café e de como a luz batia no chão da cozinha... obrigado por ser parte da minha história, mesmo que agora nossos caminhos sejam diferentes."
 
 ​Limites: Não use frases clichês de reconciliação como "sinto sua falta" ou "volte para mim". Não mencione detalhes sobre o processo judicial do divórcio ou advogados. Evite qualquer tom de ressentimento ou culpa.
+
+Justificativa: Assim theodore teria evitado o conflito visto no encontro com Catherine. No filme, a falta de limites e objetivos claros na comunicação de Theodore, fazendo assim com que ele oscile entre o afeto profundo e a incapacidade de encarar a realidade do fim do seu casamento.
