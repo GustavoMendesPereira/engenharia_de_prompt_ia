@@ -11,7 +11,7 @@ Resposta mais criativa:
 
 <img width="585" height="323" alt="image" src="https://github.com/user-attachments/assets/b99453cf-55c1-4321-8099-ab41a69c906c" />
 
-Resposta mais tecnica:
+Resposta mais técnica:
 
 <img width="585" height="308" alt="image" src="https://github.com/user-attachments/assets/4da1584a-c2ad-43d0-a209-f2fde07d6ad0" />
 
