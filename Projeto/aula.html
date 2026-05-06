@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desafios Diários de Lógica de Programação</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .stat-box span {
+            display: block;
+            font-size: 1.5em;
+            margin-top: 5px;
+        }
+
+        .challenges-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .challenge-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border-left: 5px solid #667eea;
+        }
+
+        .challenge-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .challenge-card.completed {
+            border-left-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .challenge-number {
+            font-size: 0.9em;
+            color: #9ca3af;
+            margin-bottom: 10px;
+        }
+
+        .challenge-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+
+        .challenge-description {
+            font-size: 0.9em;
+            color: #6b7280;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .difficulty {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .difficulty.facil {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .difficulty.medio {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .difficulty.dificil {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-close {
+            float: right;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #9ca3af;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: #1f2937;
+        }
+
+        .modal h2 {
+            color: #1f2937;
+            margin-bottom: 15px;
+            clear: both;
+        }
+
+        .modal .difficulty {
+            margin-bottom: 20px;
+        }
+
+        .challenge-content {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .challenge-content h3 {
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+
+        .challenge-content p {
+            color: #6b7280;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .code-example {
+            background: #1f2937;
+            color: #10b981;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+        }
+
+        .input-group {
+            margin: 20px 0;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #1f2937;
+            font-weight: bold;
+        }
+
+        .input-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-submit:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-close {
+            background: #e5e7eb;
+            color: #1f2937;
+        }
+
+        .btn-close:hover {
+            background: #d1d5db;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .feedback.success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+            display: block;
+        }
+
+        .feedback.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #10b981;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .reset-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            border: 2px solid white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .reset-btn:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        @media (max-width: 600px) {
+            .challenges-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .stats {
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Desafios Diários</h1>
+            <p>Melhore suas habilidades de lógica de programação todos os dias</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-box">
+                Completados Hoje
+                <span id="completed">0/10</span>
+            </div>
+            <div class="stat-box">
+                Taxa de Sucesso
+                <span id="successRate">0%</span>
+            </div>
+            <div class="stat-box">
+                Pontuação
+                <span id="score">0</span>
+            </div>
+        </div>
+
+        <div class="challenges-grid" id="challengesGrid"></div>
+
+        <div style="text-align: center;">
+            <button class="reset-btn" onclick="resetDaily()">🔄 Resetar Desafios</button>
+        </div>
+    </div>
+
+    <div class="modal" id="challengeModal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        // Dados dos desafios
+        const challenges = [
+            {
+                id: 1,
+                title: "Soma de Números",
+                description: "Crie uma função que soma todos os números de 1 até N",
+                difficulty: "facil",
+                problem: "Escreva uma função que recebe um número N e retorna a soma de todos os números de 1 até N.\n\nExemplo: soma(5) deve retornar 15 (1+2+3+4+5)",
+                expectedOutput: "A soma dos números de 1 até N",
+                testCases: [
+                    { input: 5, expected: 15 },
+                    { input: 10, expected: 55 }
+                ],
+                solution: "function soma(n) {\n  return n * (n + 1) / 2;\n}"
+            },
+            {
+                id: 2,
+                title: "Verificar Número Par",
+                description: "Determine se um número é par ou ímpar",
+                difficulty: "facil",
+                problem: "Escreva uma função que verifica se um número é par.\n\nExemplo: ehPar(4) deve retornar true",
+                expectedOutput: "true se o número é par, false caso contrário",
+                testCases: [
+                    { input: 4, expected: true },
+                    { input: 7, expected: false }
+                ],
+                solution: "function ehPar(n) {\n  return n % 2 === 0;\n}"
+            },
+            {
+                id: 3,
+                title: "Inverter String",
+                description: "Crie uma função que inverte uma string",
+                difficulty: "facil",
+                problem: "Escreva uma função que recebe uma string e retorna ela invertida.\n\nExemplo: inverter('hello') deve retornar 'olleh'",
+                expectedOutput: "A string invertida",
+                testCases: [
+                    { input: "hello", expected: "olleh" },
+                    { input: "python", expected: "nohtyp" }
+                ],
+                solution: "function inverter(str) {\n  return str.split('').reverse().join('');\n}"
+            },
+            {
+                id: 4,
+                title: "Encontrar Maior Número",
+                description: "Encontre o maior número em uma lista",
+                difficulty: "facil",
+                problem: "Escreva uma função que recebe um array de números e retorna o maior.\n\nExemplo: maximo([3, 7, 2, 9, 1]) deve retornar 9",
+                expectedOutput: "O maior número do array",
+                testCases: [
+                    { input: [3, 7, 2, 9, 1], expected: 9 },
+                    { input: [1, 5, 3], expected: 5 }
+                ],
+                solution: "function maximo(arr) {\n  return Math.max(...arr);\n}"
+            },
+            {
+                id: 5,
+                title: "Contar Vogais",
+                description: "Conte o número de vogais em uma string",
+                difficulty: "medio",
+                problem: "Escreva uma função que conta quantas vogais existem em uma string.\n\nExemplo: contarVogais('hello') deve retornar 2",
+                expectedOutput: "O número de vogais",
+                testCases: [
+                    { input: "hello", expected: 2 },
+                    { input: "programacao", expected: 5 }
+                ],
+                solution: "function contarVogais(str) {\n  const vogais = str.match(/[aeiouáéíóú]/gi);\n  return vogais ? vogais.length : 0;\n}"
+            },
+            {
+                id: 6,
+                title: "Fibonacci",
+                description: "Gere os N primeiros números de Fibonacci",
+                difficulty: "medio",
+                problem: "Escreva uma função que retorna um array com os N primeiros números da sequência de Fibonacci.\n\nExemplo: fibonacci(6) deve retornar [0, 1, 1, 2, 3, 5]",
+                expectedOutput: "Array com os N primeiros números de Fibonacci",
+                testCases: [
+                    { input: 6, expected: [0, 1, 1, 2, 3, 5] },
+                    { input: 4, expected: [0, 1, 1, 2] }
+                ],
+                solution: "function fibonacci(n) {\n  const fib = [0, 1];\n  for (let i = 2; i < n; i++) {\n    fib.push(fib[i-1] + fib[i-2]);\n  }\n  return fib.slice(0, n);\n}"
+            },
+            {
+                id: 7,
+                title: "Palíndromo",
+                description: "Verifique se uma string é um palíndromo",
+                difficulty: "medio",
+                problem: "Escreva uma função que verifica se uma string é um palíndromo (lê-se igual de trás para frente).\n\nExemplo: ehPalindromo('racecar') deve retornar true",
+                expectedOutput: "true se é palíndromo, false caso contrário",
+                testCases: [
+                    { input: "racecar", expected: true },
+                    { input: "hello", expected: false }
+                ],
+                solution: "function ehPalindromo(str) {\n  const limpo = str.toLowerCase().replace(/[^a-z0-9]/g, '');\n  return limpo === limpo.split('').reverse().join('');\n}"
+            },
+            {
+                id: 8,
+                title: "Remover Duplicatas",
+                description: "Remova valores duplicados de um array",
+                difficulty: "medio",
+                problem: "Escreva uma função que remove todos os valores duplicados de um array.\n\nExemplo: removerDuplicatas([1, 2, 2, 3, 3, 3]) deve retornar [1, 2, 3]",
+                expectedOutput: "Array sem valores duplicados",
+                testCases: [
+                    { input: [1, 2, 2, 3, 3, 3], expected: [1, 2, 3] },
+                    { input: [1, 1, 2, 2, 3], expected: [1, 2, 3] }
+                ],
+                solution: "function removerDuplicatas(arr) {\n  return [...new Set(arr)];\n}"
+            },
+            {
+                id: 9,
+                title: "Ordenar Array",
+                description: "Implemente um algoritmo de ordenação",
+                difficulty: "dificil",
+                problem: "Escreva uma função que ordena um array de números em ordem crescente usando o algoritmo Bubble Sort.\n\nExemplo: bubbleSort([5, 2, 8, 1, 9]) deve retornar [1, 2, 5, 8, 9]",
+                expectedOutput: "Array ordenado em ordem crescente",
+                testCases: [
+                    { input: [5, 2, 8, 1, 9], expected: [1, 2, 5, 8, 9] },
+                    { input: [3, 1, 2], expected: [1, 2, 3] }
+                ],
+                solution: "function bubbleSort(arr) {\n  for (let i = 0; i < arr.length; i++) {\n    for (let j = 0; j < arr.length - i - 1; j++) {\n      if (arr[j] > arr[j + 1]) {\n        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];\n      }\n    }\n  }\n  return arr;\n}"
+            },
+            {
+                id: 10,
+                title: "Máximo Subarray",
+                description: "Encontre o subarray contíguo com maior soma",
+                difficulty: "dificil",
+                problem: "Escreva uma função que encontra o subarray contíguo com a maior soma (Algoritmo de Kadane).\n\nExemplo: maxSubarray([-2, 1, -3, 4, -1, 2, 1, -5, 4]) deve retornar 6",
+                expectedOutput: "A maior soma possível de um subarray contíguo",
+                testCases: [
+                    { input: [-2, 1, -3, 4, -1, 2, 1, -5, 4], expected: 6 },
+                    { input: [-2, -1, -3], expected: -1 }
+                ],
+                solution: "function maxSubarray(arr) {\n  let maxSoFar = arr[0];\n  let maxCurrent = arr[0];\n  for (let i = 1; i < arr.length; i++) {\n    maxCurrent = Math.max(arr[i], maxCurrent + arr[i]);\n    maxSoFar = Math.max(maxSoFar, maxCurrent);\n  }\n  return maxSoFar;\n}"
+            }
+        ];
+
+        // Estado da aplicação
+        let appState = {
+            completed: JSON.parse(localStorage.getItem('dailyChallengesCompleted') || '{}'),
+            score: parseInt(localStorage.getItem('dailyChallengesScore') || '0'),
+            date: localStorage.getItem('dailyChallengesDate') || new Date().toISOString().split('T')[0]
+        };
+
+        // Verificar se é um novo dia
+        function checkNewDay() {
+            const today = new Date().toISOString().split('T')[0];
+            if (appState.date !== today) {
+                appState.date = today;
+                appState.completed = {};
+                localStorage.setItem('dailyChallengesDate', today);
+                localStorage.setItem('dailyChallengesCompleted', '{}');
+            }
+        }
+
+        // Inicializar
+        function init() {
+            checkNewDay();
+            renderChallenges();
+            updateStats();
+        }
+
+        // Renderizar desafios
+        function renderChallenges() {
+            const grid = document.getElementById('challengesGrid');
+            grid.innerHTML = '';
+
+            challenges.forEach(challenge => {
+                const isCompleted = appState.completed[challenge.id];
+                const card = document.createElement('div');
+                card.className = `challenge-card ${isCompleted ? 'completed' : ''}`;
+                card.innerHTML = `
+                    <div class="challenge-number">Desafio #${challenge.id}</div>
+                    <div class="challenge-title">${challenge.title}</div>
+                    <div class="challenge-description">${challenge.description}</div>
+                    <div class="difficulty ${challenge.difficulty}">${challenge.difficulty.toUpperCase()}</div>
+                    ${isCompleted ? '<div style="margin-top: 10px; color: #10b981; font-weight: bold;">✓ Completado</div>' : ''}
+                `;
+                card.onclick = () => openChallenge(challenge);
+                grid.appendChild(card);
+            });
+        }
+
+        // Abrir desafio
+        function openChallenge(challenge) {
+            const modal = document.getElementById('challengeModal');
+            const body = document.getElementById('modalBody');
+            const isCompleted = appState.completed[challenge.id];
+
+            body.innerHTML = `
+                <span class="modal-close" onclick="closeModal()">&times;</span>
+                <h2>${challenge.title}</h2>
+                <div class="difficulty ${challenge.difficulty}">${challenge.difficulty.toUpperCase()}</div>
+
+                <div class="challenge-content">
+                    <h3>Problema:</h3>
+                    <p>${challenge.problem}</p>
+                </div>
+
+                <div class="input-group">
+                    <label for="solution">Sua Solução:</label>
+                    <textarea id="solution" placeholder="Escreva seu código aqui...">${isCompleted ? challenge.solution : ''}</textarea>
+                </div>
+
+                <div id="feedback"></div>
+
+                <div class="button-group">
+                    <button class="btn btn-submit" onclick="submitSolution(${challenge.id})">Enviar Solução</button>
+                    <button class="btn btn-close" onclick="closeModal()">Fechar</button>
+                </div>
+
+                <div class="challenge-content">
+                    <h3>Dica - Solução:</h3>
+                    <div class="code-example">${challenge.solution}</div>
+                </div>
+            `;
+
+            modal.classList.add('active');
+        }
+
+        // Fechar modal
+        function closeModal() {
+            document.getElementById('challengeModal').classList.remove('active');
+        }
+
+        // Enviar solução
+        function submitSolution(challengeId) {
+            const challenge = challenges.find(c => c.id === challengeId);
+            const solution = document.getElementById('solution').value;
+            const feedback = document.getElementById('feedback');
+
+            if (!solution.trim()) {
+                feedback.className = 'feedback error';
+                feedback.textContent = '❌ Por favor, escreva uma solução!';
+                return;
+            }
+
+            // Simulação de validação (em um cenário real, seria necessário compilar/executar o código)
+            const isCorrect = validateSolution(solution, challenge);
+
+            if (isCorrect) {
+                feedback.className = 'feedback success';
+                feedback.textContent = '✓ Excelente! Sua solução está correta!';
+
+                if (!appState.completed[challengeId]) {
+                    appState.completed[challengeId] = true;
+                    appState.score += 10;
+                    localStorage.setItem('dailyChallengesCompleted', JSON.stringify(appState.completed));
+                    localStorage.setItem('dailyChallengesScore', appState.score);
+                    updateStats();
+                    renderChallenges();
+                }
+            } else {
+                feedback.className = 'feedback error';
+                feedback.textContent = '❌ Sua solução não está correta. Tente novamente!';
+            }
+        }
+
+        // Validar solução (verificação básica)
+        function validateSolution(solution, challenge) {
+            // Verificações simples baseadas no tipo de desafio
+            const hasFunction = solution.includes('function') || solution.includes('=>');
+            const hasReturn = solution.includes('return');
+            const hasLogic = solution.length > 20;
+
+            // Verificação mais específica por desafio
+            if (challenge.id === 1 && solution.includes('n * (n + 1)')) return true;
+            if (challenge.id === 2 && solution.includes('%') && solution.includes('===')) return true;
+            if (challenge.id === 3 && (solution.includes('reverse') || solution.includes('for'))) return true;
+            if (challenge.id === 4 && (solution.includes('Math.max') || solution.includes('reduce'))) return true;
+            if (challenge.id === 5 && solution.includes('match')) return true;
+            if (challenge.id === 6 && (solution.includes('for') || solution.includes('while'))) return true;
+            if (challenge.id === 7 && solution.includes('reverse')) return true;
+            if (challenge.id === 8 && solution.includes('Set')) return true;
+            if (challenge.id === 9 && solution.includes('Bubble')) return true;
+            if (challenge.id === 10 && solution.includes('Kadane')) return true;
+
+            // Validação genérica
+            return hasFunction && hasReturn && hasLogic;
+        }
+
+        // Atualizar estatísticas
+        function updateStats() {
+            const completed = Object.keys(appState.completed).length;
+            const total = challenges.length;
+            const percentage = Math.round((completed / total) * 100);
+
+            document.getElementById('completed').textContent = `${completed}/${total}`;
+            document.getElementById('successRate').textContent = `${percentage}%`;
+            document.getElementById('score').textContent = appState.score;
+            document.getElementById('progressFill').style.width = `${percentage}%`;
+        }
+
+        // Resetar desafios do dia
+        function resetDaily() {
+            if (confirm('Tem certeza que deseja resetar todos os desafios de hoje?')) {
+                appState.completed = {};
+                appState.score = 0;
+                localStorage.setItem('dailyChallengesCompleted', '{}');
+                localStorage.setItem('dailyChallengesScore', '0');
+                updateStats();
+                renderChallenges();
+            }
+        }
+
+        // Iniciar aplicação
+        init();
+    </script>
+</body>
+</html>
