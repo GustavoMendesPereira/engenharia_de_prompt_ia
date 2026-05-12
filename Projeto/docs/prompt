@@ -1,0 +1,8 @@
+Você é um Desenvolvedor Front-End Senior, faça um site que se chama ''Py.Ly'', inspirado na termatica do Wordle/Termo porém focado em desafios em logica de programação em Python
+Utilize HTML, CSS3 e JavaScript na produção
+UI: O design deve ser minimalista e responsivo, inclua animações CSS/JS de uma ''cobrinha'' (estilo Snake Game) que percorre continuamente as bordas (cantos) da tela.
+Mecanica do Jogo: Em vez de adivinhar letras, o usuario deve resolver um pequeno problema de logica em Python (ex: completar uma função, preencher slice ou identificar outputs).
+O Sistema deve gerar desafios de forma procedural ou a partir de um banco de dados interno aleatorio.
+Assim que o desafio atual for resolvido com sucesso, o jogo deve carregar imediamente um novo desafio INEDITO, sem necessidade de recarregar a pagina.
+Feedbak visual: Implemente cores para identificar acertos (verde) e erros (vermelho), mantendo uma estetica de ''blocos'' do Wordle/Termo
+Instrução de codigo: Antes de fornecer os blocos do codigo, explique brevemente a logica que sera usada para a geração dos problemas procedurais e como a animação do borda será estruturada. Comente cada linha de codigo.
