@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Py.Ly — Desafios de lógica em Python</title>
+<meta name="description" content="Py.Ly: jogo estilo Wordle/Termo com desafios infinitos de lógica em Python." />
+<style>
+  :root{
+    --background: oklch(0.16 0.01 260);
+    --foreground: oklch(0.97 0.01 260);
+    --muted: oklch(0.24 0.01 260);
+    --muted-foreground: oklch(0.65 0.02 260);
+    --border: oklch(0.32 0.02 260);
+    --correct: oklch(0.72 0.18 145);
+    --wrong: oklch(0.62 0.22 25);
+    --accent: oklch(0.82 0.17 90);
+  }
+  *{box-sizing:border-box;border-color:var(--border)}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--background);color:var(--foreground);
+    font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+    -webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden;
+  }
+  /* Snake border */
+  .snake-svg{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:visible}
+  .snake-track{fill:none;stroke:var(--border);stroke-width:.3}
+  .snake-body,.snake-belly{fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .snake-body.blue{stroke:url(#snakeGradBlue);stroke-width:13;filter:drop-shadow(0 0 6px rgba(75,139,190,.7))}
+  .snake-belly.blue{stroke:#cfe5f3;stroke-width:4.5;opacity:.55}
+  .snake-body.yellow{stroke:url(#snakeGradYellow);stroke-width:13;filter:drop-shadow(0 0 6px rgba(255,212,59,.7))}
+  .snake-belly.yellow{stroke:#fff1b3;stroke-width:4.5;opacity:.6}
+  .snake-head-shape.blue{fill:url(#headGradBlue);stroke:#1e466b;stroke-width:1.2}
+  .snake-head-shape.yellow{fill:url(#headGradYellow);stroke:#8a6b15;stroke-width:1.2}
+  @keyframes tongue{
+    0%,70%,100%{transform:scaleY(0);opacity:0}
+    80%,90%{transform:scaleY(1);opacity:1}
+  }
+  .tongue{transform-origin:50% 0%;animation:tongue 2.2s ease-in-out infinite}
+
+  /* Layout */
+  main{position:relative;z-index:1;max-width:42rem;margin:0 auto;padding:2.5rem 1.5rem;min-height:100vh;display:flex;flex-direction:column}
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem}
+  h1{font-size:2rem;margin:0;letter-spacing:-.02em}
+  h1 .dot{color:var(--accent)}
+  .scores{display:flex;gap:.5rem;font-size:.8rem}
+  .lead{color:var(--muted-foreground);margin:0 0 1.5rem;font-size:.9rem}
+  .card{border:1px solid var(--border);background:color-mix(in oklab,var(--muted) 40%,transparent);
+    border-radius:.5rem;padding:1.25rem;margin-bottom:1.5rem;backdrop-filter:blur(4px)}
+  .hint{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-foreground);margin-bottom:.5rem}
+  .prompt{margin:0 0 1rem;font-size:1rem}
+  pre{background:rgba(0,0,0,.4);padding:1rem;border-radius:.25rem;overflow-x:auto;font-size:.85rem;line-height:1.55;margin:0}
+  .choices{display:grid;gap:.75rem}
+  @media(min-width:600px){.choices{grid-template-columns:1fr 1fr}}
+  @keyframes flip{0%{transform:rotateX(0)}50%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+  @keyframes pop{0%{transform:scale(.9);opacity:0}100%{transform:scale(1);opacity:1}}
+  .block{display:inline-flex;align-items:center;justify-content:flex-start;text-align:left;
+    min-height:2.6rem;padding:.5rem .75rem;border:2px solid var(--border);background:var(--muted);
+    color:var(--foreground);font-weight:600;border-radius:4px;animation:pop .25s ease-out;
+    cursor:pointer;font-family:inherit;font-size:.9rem;width:100%;transition:border-color .15s}
+  .block:hover{border-color:var(--accent)}
+  .block:disabled{cursor:default}
+  .block .letter{margin-right:.75rem;color:var(--muted-foreground)}
+  .block code{font-family:inherit;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .block-correct{background:var(--correct);border-color:var(--correct);color:oklch(.15 .02 145);animation:flip .5s ease}
+  .block-wrong{background:var(--wrong);border-color:var(--wrong);color:#fff;animation:shake .4s ease,flip .5s ease}
+  .scores .block{min-height:auto;padding:.25rem .5rem;font-size:.75rem;width:auto;cursor:default}
+  .footer{margin-top:auto;padding-top:2.5rem;display:flex;justify-content:space-between;
+    font-size:.75rem;color:var(--muted-foreground)}
+  .skip{background:none;border:none;color:inherit;font-family:inherit;cursor:pointer;text-underline-offset:4px}
+  .skip:hover{text-decoration:underline}
+  .card{animation:pop .3s ease-out}
+</style>
+</head>
+<body>
+<svg class="snake-svg" id="snakeSvg" preserveAspectRatio="none" viewBox="0 0 100 100" aria-hidden="true">
+  <defs>
+    <linearGradient id="snakeGradBlue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2b5d85"/>
+      <stop offset="50%" stop-color="#4b8bbe"/>
+      <stop offset="100%" stop-color="#6fb1e0"/>
+    </linearGradient>
+    <linearGradient id="headGradBlue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7fb8e3"/>
+      <stop offset="100%" stop-color="#2b5d85"/>
+    </linearGradient>
+    <linearGradient id="snakeGradYellow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#c69a14"/>
+      <stop offset="50%" stop-color="#ffd43b"/>
+      <stop offset="100%" stop-color="#ffe680"/>
+    </linearGradient>
+    <linearGradient id="headGradYellow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffe680"/>
+      <stop offset="100%" stop-color="#c69a14"/>
+    </linearGradient>
+  </defs>
+  <rect id="snakeTrack" x="1" y="1" width="98" height="98" rx="1.2" class="snake-track"/>
+  <polyline id="snakeBodyBlue" class="snake-body blue" points="0,0" vector-effect="non-scaling-stroke"/>
+  <polyline id="snakeBellyBlue" class="snake-belly blue" points="0,0" vector-effect="non-scaling-stroke"/>
+  <polyline id="snakeBodyYellow" class="snake-body yellow" points="0,0" vector-effect="non-scaling-stroke"/>
+  <polyline id="snakeBellyYellow" class="snake-belly yellow" points="0,0" vector-effect="non-scaling-stroke"/>
+  <g id="snakeHeadBlue">
+    <path class="snake-head-shape blue" d="M0 -28 C15 -20,21 -2,15 16 C11 26,-11 26,-15 16 C-21 -2,-15 -20,0 -28 Z"/>
+    <g class="tongue">
+      <path d="M0 -30 L-2 -40 M0 -30 L2 -40 M0 -32 L0 -38" stroke="#e23b4d" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+    </g>
+    <circle cx="-8" cy="-12" r="3.6" fill="#fff7c2"/>
+    <circle cx="8" cy="-12" r="3.6" fill="#fff7c2"/>
+    <ellipse cx="-8" cy="-12" rx="1" ry="2.4" fill="#111"/>
+    <ellipse cx="8" cy="-12" rx="1" ry="2.4" fill="#111"/>
+  </g>
+  <g id="snakeHeadYellow">
+    <path class="snake-head-shape yellow" d="M0 -28 C15 -20,21 -2,15 16 C11 26,-11 26,-15 16 C-21 -2,-15 -20,0 -28 Z"/>
+    <g class="tongue">
+      <path d="M0 -30 L-2 -40 M0 -30 L2 -40 M0 -32 L0 -38" stroke="#e23b4d" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+    </g>
+    <circle cx="-8" cy="-12" r="3.6" fill="#fff7c2"/>
+    <circle cx="8" cy="-12" r="3.6" fill="#fff7c2"/>
+    <ellipse cx="-8" cy="-12" rx="1" ry="2.4" fill="#111"/>
+    <ellipse cx="8" cy="-12" rx="1" ry="2.4" fill="#111"/>
+  </g>
+</svg>
+
+<main>
+  <header>
+    <h1>Py<span class="dot">.</span>Ly</h1>
+    <div class="scores">
+      <span class="block">🔥 <span id="streak">0</span></span>
+      <span class="block block-correct">✓ <span id="solved">0</span></span>
+      <span class="block block-wrong">✗ <span id="misses">0</span></span>
+    </div>
+  </header>
+
+  <p class="lead">Resolva o desafio de Python. Acerte para avançar — desafios infinitos, gerados na hora.</p>
+
+  <section class="card" id="card">
+    <div class="hint" id="hint"></div>
+    <p class="prompt" id="prompt"></p>
+    <pre><code id="code"></code></pre>
+  </section>
+
+  <div class="choices" id="choices"></div>
+
+  <div class="footer">
+    <button class="skip" id="skip">pular desafio →</button>
+    <span>verde = correto · vermelho = errado</span>
+  </div>
+</main>
+
+<script>
+const ri = (min,max)=>Math.floor(Math.random()*(max-min+1))+min;
+const shuffle = arr => {const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const numericChoices = c => {const s=new Set([c]);while(s.size<4)s.add(c+ri(-5,5));return shuffle([...s]).map(String)};
+
+const tplSlice = () => {
+  const list=Array.from({length:ri(5,8)},()=>ri(1,9));
+  const a=ri(0,list.length-2), b=ri(a+1,list.length);
+  const correct=JSON.stringify(list.slice(a,b));
+  const d=new Set();
+  while(d.size<3){const da=Math.max(0,a+ri(-1,1)),db=Math.min(list.length,b+ri(-1,1));const s=JSON.stringify(list.slice(da,db));if(s!==correct)d.add(s);}
+  return {prompt:"Qual o output deste código?",code:`lst = ${JSON.stringify(list)}\nprint(lst[${a}:${b}])`,choices:shuffle([correct,...d]),answer:correct,hint:"list slicing"};
+};
+const tplModulo = () => {const x=ri(10,99),y=ri(2,9),c=x%y;return{prompt:"Qual o resultado?",code:`print(${x} % ${y})`,choices:numericChoices(c),answer:String(c),hint:"modulo"}};
+const tplComp = () => {
+  const n=ri(4,7);
+  const r=Array.from({length:n},(_,i)=>i).filter(i=>i%2===0).map(i=>i*i);
+  const correct=JSON.stringify(r);
+  const v1=JSON.stringify(Array.from({length:n},(_,i)=>i*i));
+  const v2=JSON.stringify(Array.from({length:n},(_,i)=>i).filter(i=>i%2===0));
+  const v3=JSON.stringify(Array.from({length:n},(_,i)=>i).filter(i=>i%2!==0).map(i=>i*i));
+  const pool=[v1,v2,v3].filter(s=>s!==correct);
+  return{prompt:"Qual o output?",code:`print([i*i for i in range(${n}) if i%2==0])`,choices:shuffle([correct,...pool.slice(0,3)]),answer:correct,hint:"list comprehension"};
+};
+const tplComplete = () => {
+  const list=Array.from({length:ri(4,6)},()=>ri(1,9));
+  const expected=list.filter(n=>n%2===0).reduce((s,n)=>s+n,0);
+  const correct="if n % 2 == 0";
+  return{prompt:`Complete a função para que soma_pares(${JSON.stringify(list)}) retorne ${expected}:`,
+    code:`def soma_pares(lst):\n    total = 0\n    for n in lst:\n        ___:\n            total += n\n    return total`,
+    choices:shuffle([correct,"if n % 2 == 1","if n / 2 == 0","if n % 2"]),answer:correct,hint:"função / condicional"};
+};
+const tplString = () => {
+  const w=["python","lovable","termo","wordle","snake","logic"][ri(0,5)];
+  const i=ri(0,w.length-1), j=ri(i+1,w.length);
+  const correct=JSON.stringify(w.slice(i,j));
+  const d=new Set();
+  while(d.size<3){const di=Math.max(0,i+ri(-1,1)),dj=Math.min(w.length,j+ri(-1,1));const s=JSON.stringify(w.slice(di,dj));if(s!==correct)d.add(s);}
+  return{prompt:"Qual o output?",code:`s = "${w}"\nprint(s[${i}:${j}])`,choices:shuffle([correct,...d]),answer:correct,hint:"string slicing"};
+};
+const tplDict = () => {
+  const n=ri(3,6);
+  const pairs=Array.from({length:n},(_,k)=>`"k${k}": ${ri(1,9)}`).join(", ");
+  return{prompt:"Qual o output?",code:`d = {${pairs}}\nprint(len(d))`,choices:numericChoices(n),answer:String(n),hint:"dict / len"};
+};
+const templates=[tplSlice,tplModulo,tplComp,tplComplete,tplString,tplDict];
+const nextChallenge = prev => {for(let i=0;i<6;i++){const c=templates[Math.floor(Math.random()*templates.length)]();if(c.code!==prev)return c;}return templates[0]()};
+
+let challenge=nextChallenge(), picked=null, status="idle";
+let streak=0, solved=0, misses=0;
+const $=id=>document.getElementById(id);
+
+// ===== Two parallel python snakes (blue + yellow), running in lockstep =====
+const snakeSvg=$("snakeSvg"), snakeTrack=$("snakeTrack");
+const lanes=[
+  {body:$("snakeBodyBlue"),  belly:$("snakeBellyBlue"),  head:$("snakeHeadBlue"),  inset:18},
+  {body:$("snakeBodyYellow"),belly:$("snakeBellyYellow"),head:$("snakeHeadYellow"),inset:44},
+];
+let snakeBox={w:innerWidth,h:innerHeight};
+function resizeSnake(){
+  const w=Math.max(320,innerWidth), h=Math.max(320,innerHeight);
+  snakeBox={w,h};
+  snakeSvg.setAttribute("viewBox",`0 0 ${w} ${h}`);
+  const inset=24;
+  snakeTrack.setAttribute("x",inset);snakeTrack.setAttribute("y",inset);
+  snakeTrack.setAttribute("width",w-inset*2);snakeTrack.setAttribute("height",h-inset*2);
+  snakeTrack.setAttribute("rx",8);
+}
+function pointOnBorder(distance,inset){
+  const {w,h}=snakeBox, top=w-inset*2, side=h-inset*2, perimeter=2*(top+side);
+  let d=((distance%perimeter)+perimeter)%perimeter;
+  if(d<top)return{x:inset+d,y:inset};
+  d-=top;if(d<side)return{x:w-inset,y:inset+d};
+  d-=side;if(d<top)return{x:w-inset-d,y:h-inset};
+  d-=top;return{x:inset,y:h-inset-d};
+}
+function animateSnake(time){
+  for(const lane of lanes){
+    const {w,h}=snakeBox, top=w-lane.inset*2, side=h-lane.inset*2, perimeter=2*(top+side);
+    const headDistance=(time*.18)%perimeter, bodyLength=Math.min(420,perimeter*.28), pts=[];
+    for(let i=22;i>=0;i--)pts.push(pointOnBorder(headDistance-bodyLength*(i/22),lane.inset));
+    const poly=pts.map(p=>`${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+    lane.body.setAttribute("points",poly);lane.belly.setAttribute("points",poly);
+    const head=pointOnBorder(headDistance,lane.inset), ahead=pointOnBorder(headDistance+2,lane.inset);
+    const angle=Math.atan2(ahead.y-head.y,ahead.x-head.x)*180/Math.PI+90;
+    lane.head.setAttribute("transform",`translate(${head.x.toFixed(1)} ${head.y.toFixed(1)}) rotate(${angle.toFixed(1)}) scale(.7)`);
+  }
+  requestAnimationFrame(animateSnake);
+}
+addEventListener("resize",resizeSnake);resizeSnake();requestAnimationFrame(animateSnake);
+
+function render(){
+  $("hint").textContent=challenge.hint;
+  $("prompt").textContent=challenge.prompt;
+  $("code").textContent=challenge.code;
+  $("streak").textContent=streak;$("solved").textContent=solved;$("misses").textContent=misses;
+  const ch=$("choices");ch.innerHTML="";
+  challenge.choices.forEach((c,i)=>{
+    const b=document.createElement("button");
+    b.className="block"+(picked===i?(status==="correct"?" block-correct":status==="wrong"?" block-wrong":""):"");
+    b.disabled=status==="correct";
+    b.innerHTML=`<span class="letter">${String.fromCharCode(65+i)}.</span><code></code>`;
+    b.querySelector("code").textContent=c;
+    b.onclick=()=>pick(i);
+    ch.appendChild(b);
+  });
+  const card=$("card");card.style.animation="none";void card.offsetWidth;card.style.animation="";
+}
+function pick(i){
+  if(status==="correct")return;
+  picked=i;
+  if(challenge.choices[i]===challenge.answer){status="correct";streak++;solved++;
+    setTimeout(()=>{challenge=nextChallenge(challenge.code);picked=null;status="idle";render();},850);
+  } else {status="wrong";streak=0;misses++;
+    setTimeout(()=>{status="idle";render();},600);
+  }
+  render();
+}
+$("skip").onclick=()=>{challenge=nextChallenge(challenge.code);picked=null;status="idle";streak=0;render();};
+render();
+</script>
+</body>
+</html>
